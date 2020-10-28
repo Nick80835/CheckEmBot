@@ -1,4 +1,9 @@
+import sys
 from random import choice, randint
+
+from dubs_bot.settings import Settings
+
+owner_id = int(Settings().get_config("owner_id"))
 
 dubs_dict = {
     2: ["CHECK 'EM", "nice dubs!!!", "2 same number", "top dubs!!", "in dubs we trust!!"],
@@ -14,6 +19,11 @@ dubs_dict = {
 
 
 async def handle_message(event):
+    if event.sender_id == owner_id and event.raw_text == "c.shutdown":
+        await event.reply("Shutting down...")
+        await event.client.disconnect()
+        sys.exit()
+
     digit_result = check_digits(str(event.id), str(event.chat.id))
 
     if digit_result:
