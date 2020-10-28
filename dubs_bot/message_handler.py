@@ -20,9 +20,10 @@ dubs_dict = {
 special_dubs_dict = {
     666: ["absolutely demonic", "I dont like those numbers"],
     777: ["holy trips!!", "blessed trips"],
-    333: ["three three"],
-    22: ["two two"],
-    4444: ["4 by 4"]
+    555: ["angelic trips!!"],
+    333: ["three threes"],
+    22: ["two twos"],
+    4444: ["4 by 4", "four fours"]
 }
 
 
