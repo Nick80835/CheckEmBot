@@ -17,6 +17,14 @@ dubs_dict = {
     10: ["WHAT THE FUCK!?!?!"]
 }
 
+special_dubs_dict = {
+    666: ["absolutely demonic", "I dont like those numbers"],
+    777: ["holy trips!!", "blessed trips"],
+    333: ["three three"],
+    22: ["two two"],
+    4444: ["4 by 4"]
+}
+
 
 async def handle_message(event):
     if event.sender_id == owner_id and event.raw_text == "c.shutdown":
@@ -34,8 +42,10 @@ def check_digits(message_id: str, chat_id: str):
     last_digit = message_id[-1]
     digit_count = 1
     digit_place = -2
+    digit_str = last_digit
 
     while message_id[digit_place] == last_digit:
+        digit_str += last_digit
         digit_count += 1
         digit_place -= 1
 
@@ -45,5 +55,8 @@ def check_digits(message_id: str, chat_id: str):
     if digit_count in (2, 3):
         if randint(1, 100) < 130 / digit_count:
             return
+
+    if int(digit_str) in special_dubs_dict.keys():
+        return f"[>>{message_id}](https://t.me/c/{chat_id}/{message_id})\n{choice(special_dubs_dict.get(int(digit_str)))}"
 
     return f"[>>{message_id}](https://t.me/c/{chat_id}/{message_id})\n{choice(dubs_dict.get(digit_count))}"
