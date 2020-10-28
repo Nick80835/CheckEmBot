@@ -45,10 +45,13 @@ def check_digits(message_id: str, chat_id: str):
     digit_place = -2
     digit_str = last_digit
 
-    while message_id[digit_place] == last_digit:
-        digit_str += last_digit
-        digit_count += 1
-        digit_place -= 1
+    try:
+        while message_id[digit_place] == last_digit and digit_count + 1 in dubs_dict.keys():
+            digit_str += last_digit
+            digit_count += 1
+            digit_place -= 1
+    except IndexError:
+        pass
 
     if digit_count == 1:
         return
