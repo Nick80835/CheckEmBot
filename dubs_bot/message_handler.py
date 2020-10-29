@@ -3,7 +3,8 @@ from random import choice, randint
 
 from telethon import events
 
-from .check_strings import dubs_dict, special_dubs_dict
+from .check_strings import (dubs_dict, not_dubs_but_funny_dict,
+                            special_dubs_dict)
 
 
 class MessageHandler:
@@ -62,6 +63,11 @@ class MessageHandler:
                 digit_place -= 1
         except IndexError:
             pass
+
+        for key, value in not_dubs_but_funny_dict.items():
+            if message_id.endswith(str(key)):
+                if randint(1, 100) > 25:
+                    return f"[>>{message_id}](https://t.me/c/{chat_id}/{message_id})\n{choice(value)}"
 
         if len(digit_str) == 1 or len(digit_str) < int(self.settings.get_config(f"{chat_id}_minget", 2)):
             return
