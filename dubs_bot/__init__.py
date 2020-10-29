@@ -6,7 +6,7 @@ from telethon.errors.rpcerrorlist import PhoneNumberInvalidError
 from telethon.network.connection.tcpabridged import \
     ConnectionTcpAbridged as CTA
 
-from dubs_bot.message_handler import handle_message
+from dubs_bot.message_handler import MessageHandler
 from dubs_bot.settings import Settings
 
 
@@ -20,7 +20,7 @@ class DubsCheckerBot:
 
     def run_until_done(self):
         self.logger.info("Client successfully started.")
-        self.client.add_event_handler(handle_message, events.NewMessage(incoming=True, func=lambda e: not e.is_private))
+        self.message_handler = MessageHandler(self.client, self.settings)
         self.logger.info("Dubs checker successfully started.")
         self.client.run_until_disconnected()
 

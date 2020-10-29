@@ -1,66 +1,76 @@
 import sys
 from random import choice, randint
 
-from dubs_bot.settings import Settings
+from telethon import events
 
-owner_id = int(Settings().get_config("owner_id"))
-
-dubs_dict = {
-    2: ["CHECK 'EM", "nice dubs!!!", "2 same number", "top dubs!!", "in dubs we trust!!"],
-    3: ["CHECK 'EM!!!", "sweet trips", "TRIPS!!!", "oh baby a trips!!", "top trips!!!"],
-    4: ["sexy quads!!", "HOLY COW QUADS!!!", "SWEET QUADS FREN!!!"],
-    5: ["CHECKIN' QUINTS!!!", "QUINTS WOW!!!", "Sweet quints fren!!"],
-    6: ["SEX!!", "CHECKIN' SEXTUPLES!!!!!!", "SIX SAME NUMBER WOW!!!"],
-    7: ["CHECKIN' SEPTUPLES!!!", "7 SAME NUMBE HOLY MOLY!!!", "NICE SEPTS FREN!!!"],
-    8: ["HOLY SHIT 8 SAME NUMBER", "OCTUPLES CHECKED!!!!"],
-    9: ["HOW"],
-    10: ["WHAT THE FUCK!?!?!"]
-}
-
-special_dubs_dict = {
-    666: ["absolutely demonic", "I dont like those numbers"],
-    777: ["holy trips!!", "blessed trips"],
-    555: ["angelic trips!!"],
-    333: ["three threes"],
-    22: ["two twos"],
-    4444: ["4 by 4", "four fours"]
-}
+from .check_strings import dubs_dict, special_dubs_dict
 
 
-async def handle_message(event):
-    if event.sender_id == owner_id and event.raw_text == "c.shutdown":
-        await event.reply("Shutting down...")
-        await event.client.disconnect()
-        sys.exit()
+class MessageHandler:
+    def __init__(self, client, settings):
+        self.client = client
+        self.settings = settings
 
-    digit_result = check_digits(str(event.id), str(event.chat.id))
+        bot_username = client.loop.run_until_complete(client.get_me()).username
+        owner_id = int(settings.get_config("owner_id"))
+        template = "(?is)^{0}(?: |$|@{1}(?: |$))(.*)"
 
-    if digit_result:
-        await event.respond(digit_result)
+        client.add_event_handler(self.dubs_check, events.NewMessage(incoming=True, func=lambda e: not e.is_private))
+        client.add_event_handler(self.set_min_get, events.NewMessage(incoming=True, pattern=template.format("/minget", bot_username), func=lambda e: not e.is_private))
+        client.add_event_handler(self.shutdown, events.NewMessage(incoming=True, pattern=template.format("/nodubs", bot_username), func=lambda e: e.sender_id == owner_id))
 
+    async def dubs_check(self, event):
+        digit_result = self.check_digits(str(event.id), str(event.chat.id))
 
-def check_digits(message_id: str, chat_id: str):
-    last_digit = message_id[-1]
-    digit_count = 1
-    digit_place = -2
-    digit_str = last_digit
+        if digit_result:
+            await event.respond(digit_result)
 
-    try:
-        while message_id[digit_place] == last_digit and digit_count + 1 in dubs_dict.keys():
-            digit_str += last_digit
-            digit_count += 1
-            digit_place -= 1
-    except IndexError:
-        pass
-
-    if digit_count == 1:
-        return
-
-    if digit_count in (2, 3):
-        if randint(1, 100) < 130 / digit_count:
+    async def set_min_get(self, event):
+        if not (await event.client.get_permissions(event.chat, event.sender_id)).is_admin:
+            await event.reply("That command requires admin permissions!")
             return
 
-    if int(digit_str) in special_dubs_dict.keys():
-        return f"[>>{message_id}](https://t.me/c/{chat_id}/{message_id})\n{choice(special_dubs_dict.get(int(digit_str)))}"
+        if not event.pattern_match.groups()[-1]:
+            await event.reply(f"Syntax: /minget <number>\nCurrent config: {self.settings.get_config(f'{event.chat.id}_minget', 2)}")
+            return
 
-    return f"[>>{message_id}](https://t.me/c/{chat_id}/{message_id})\n{choice(dubs_dict.get(digit_count))}"
+        try:
+            newminget = int(event.pattern_match.groups()[-1])
+
+            if newminget <= 1 or newminget >= 8:
+                raise Exception
+        except:
+            await event.reply("Invalid value, expected an integer between 1 and 8!")
+            return
+
+        self.settings.set_config(f'{event.chat.id}_minget', newminget)
+        await event.reply(f"Successfully set this groups min get to {newminget}!")
+
+    async def shutdown(self, event):
+        await event.reply("Shutting down...")
+        await self.client.disconnect()
+        sys.exit()
+
+    def check_digits(self, message_id: str, chat_id: str):
+        last_digit = message_id[-1]
+        digit_place = -2
+        digit_str = last_digit
+
+        try:
+            while message_id[digit_place] == last_digit and len(digit_str) + 1 in dubs_dict.keys():
+                digit_str += last_digit
+                digit_place -= 1
+        except IndexError:
+            pass
+
+        if len(digit_str) == 1 or len(digit_str) < int(self.settings.get_config(f"{chat_id}_minget", 2)):
+            return
+
+        if len(digit_str) in (2, 3):
+            if randint(1, 100) < 130 / len(digit_str):
+                return
+
+        if int(digit_str) in special_dubs_dict.keys():
+            return f"[>>{message_id}](https://t.me/c/{chat_id}/{message_id})\n{choice(special_dubs_dict.get(int(digit_str)))}"
+
+        return f"[>>{message_id}](https://t.me/c/{chat_id}/{message_id})\n{choice(dubs_dict.get(len(digit_str)))}"
