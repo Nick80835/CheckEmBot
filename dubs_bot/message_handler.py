@@ -5,6 +5,7 @@ from telethon import events
 
 from .check_strings import (dubs_dict, not_dubs_but_funny_dict,
                             special_dubs_dict)
+from .fortune_strings import fortunes
 
 
 class MessageHandler:
@@ -67,7 +68,7 @@ class MessageHandler:
         for key, value in not_dubs_but_funny_dict.items():
             if message_id.endswith(str(key)):
                 if randint(1, 100) > 25:
-                    return f"[>>{message_id}](https://t.me/c/{chat_id}/{message_id})\n{choice(value)}"
+                    return f"[>>{message_id}](https://t.me/c/{chat_id}/{message_id})\n{choice(value)}\n\n{self.check_fortune()}"
 
         if len(digit_str) == 1 or len(digit_str) < int(self.settings.get_config(f"{chat_id}_minget", 2)):
             return
@@ -77,6 +78,12 @@ class MessageHandler:
                 return
 
         if int(digit_str) in special_dubs_dict.keys():
-            return f"[>>{message_id}](https://t.me/c/{chat_id}/{message_id})\n{choice(special_dubs_dict.get(int(digit_str)))}"
+            return f"[>>{message_id}](https://t.me/c/{chat_id}/{message_id})\n{choice(special_dubs_dict.get(int(digit_str)))}\n\n{self.check_fortune()}"
 
-        return f"[>>{message_id}](https://t.me/c/{chat_id}/{message_id})\n{choice(dubs_dict.get(len(digit_str)))}"
+        return f"[>>{message_id}](https://t.me/c/{chat_id}/{message_id})\n{choice(dubs_dict.get(len(digit_str)))}\n\n{self.check_fortune()}"
+
+    def check_fortune(self):
+        if randint(1, 100) > 70:
+            return f"Your fortune: **{choice(fortunes)}**"
+
+        return ""
