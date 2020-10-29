@@ -121,5 +121,8 @@ not_dubs_but_funny_dict = {
         "s4s",
         "S4S",
         "[s4s]"
+    ],
+    80835: [
+        "daddy?"
     ]
 }
