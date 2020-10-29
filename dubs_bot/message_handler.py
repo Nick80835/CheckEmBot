@@ -74,7 +74,7 @@ class MessageHandler:
             return
 
         if len(digit_str) in (2, 3):
-            if randint(1, 100) < 130 / len(digit_str):
+            if randint(1, 100) < 145 / len(digit_str):
                 return
 
         if int(digit_str) in special_dubs_dict.keys():
