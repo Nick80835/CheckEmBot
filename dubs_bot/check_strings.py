@@ -102,12 +102,6 @@ not_dubs_but_funny_dict = {
         "haha funi",
         "sexy sex"
     ],
-    69: [
-        "haha funi numbr",
-        "69 funny",
-        "LOLE",
-        "funny sex number"
-    ],
     420: [
         "WEED GET",
         "weed",
