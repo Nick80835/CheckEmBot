@@ -118,5 +118,9 @@ not_dubs_but_funny_dict = {
     ],
     80835: [
         "daddy?"
+    ],
+    187: [
+        "187",
+        "EINS ACHT SIEBEN"
     ]
 }
